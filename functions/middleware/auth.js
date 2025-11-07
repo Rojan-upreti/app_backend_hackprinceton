@@ -4,10 +4,25 @@
  */
 
 const admin = require('firebase-admin');
+const path = require('path');
+const fs = require('fs');
 
 // Initialize Firebase Admin if not already initialized
 if (!admin.apps.length) {
-  admin.initializeApp();
+  // Check if service account key exists (for local development)
+  const serviceAccountPath = path.join(__dirname, '..', '..', 'config', 'firebase-service-account.json');
+  
+  if (fs.existsSync(serviceAccountPath)) {
+    // Use service account key for local development
+    const serviceAccount = require(serviceAccountPath);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      projectId: serviceAccount.project_id
+    });
+  } else {
+    // Use default credentials (for Firebase Functions deployment)
+    admin.initializeApp();
+  }
 }
 
 /**
