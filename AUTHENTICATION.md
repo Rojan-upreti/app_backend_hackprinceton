@@ -124,19 +124,23 @@ The backend uses Firebase Admin SDK to verify tokens. Make sure your Firebase pr
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
+// IMPORTANT: Replace these values with your own Firebase configuration
+// Get your config from Firebase Console > Project Settings > Your apps
 const firebaseConfig = {
-  apiKey: "AIzaSyB4z0HPzkI5YPsCVjWIQNyFbXsRc2MBkF0",
-  authDomain: "scanaraai.firebaseapp.com",
-  projectId: "scanaraai",
-  storageBucket: "scanaraai.firebasestorage.app",
-  messagingSenderId: "840074904641",
-  appId: "1:840074904641:web:7f10e0ee9eec577de972c0",
-  measurementId: "G-QVCDEXRW34"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "YOUR_API_KEY_HERE",
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "YOUR_PROJECT_ID",
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "YOUR_MESSAGING_SENDER_ID",
+  appId: process.env.REACT_APP_FIREBASE_APP_ID || "YOUR_APP_ID",
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || "YOUR_MEASUREMENT_ID"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 ```
+
+**⚠️ Security Note:** Never commit your Firebase API keys to version control. Use environment variables or a secure configuration file that is excluded from git (add to `.gitignore`).
 
 ### 2. Sign In User
 
@@ -334,9 +338,38 @@ Common errors:
 
 ## Security Notes
 
-1. Always use HTTPS in production
-2. ID tokens expire after 1 hour - refresh them as needed
-3. Store tokens securely on the client side
-4. Never expose Firebase Admin SDK credentials on the client
-5. The backend automatically verifies tokens with Firebase servers
+1. **Always use HTTPS in production** - Never send tokens over HTTP
+2. **ID tokens expire after 1 hour** - Refresh them as needed using `user.getIdToken(true)`
+3. **Store tokens securely on the client side** - Don't store tokens in localStorage for sensitive apps
+4. **Never expose Firebase Admin SDK credentials on the client** - Admin SDK is server-side only
+5. **The backend automatically verifies tokens with Firebase servers** - No need to manually verify
+6. **Never commit API keys to version control** - Use environment variables or secure config files
+7. **Use Firebase Security Rules** - Configure proper security rules in Firebase Console
+8. **Rotate API keys if exposed** - If your API key is exposed, regenerate it in Firebase Console
+
+### Best Practices for API Keys
+
+1. **Use Environment Variables:**
+   ```javascript
+   // .env file (add to .gitignore)
+   REACT_APP_FIREBASE_API_KEY=your_api_key_here
+   REACT_APP_FIREBASE_PROJECT_ID=your_project_id
+   
+   // In your code
+   const firebaseConfig = {
+     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+     // ...
+   };
+   ```
+
+2. **Create a config file (excluded from git):**
+   ```javascript
+   // config/firebase.js (add config/ to .gitignore)
+   export const firebaseConfig = {
+     apiKey: "your-api-key",
+     // ...
+   };
+   ```
+
+3. **Use Firebase App Check** - Add an extra layer of security by verifying requests come from your app
 

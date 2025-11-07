@@ -10,6 +10,11 @@ yarn.lock
 .env.test.local
 .env.production.local
 
+# Firebase config files (if storing locally)
+config/firebase.js
+firebase-config.js
+firebase.config.js
+
 # Logs
 logs
 *.log
